@@ -1,0 +1,4 @@
+error: USAGE: target/debug/hotel <db.yml> <input>
+
+Where <db.yml> is a yaml file with the hotel database and
+where <input> is the input file with customer statements

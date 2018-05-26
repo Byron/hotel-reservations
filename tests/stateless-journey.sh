@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -eu
+
+exe=${1:?First argument must be the executable to test}
+
+root="$(cd "${0%/*}" && pwd)"
+# shellcheck disable=1090
+source "$root/utilities.sh"
+snapshot="$root/snapshots"
+fixture="$root/fixtures"
+
+SUCCESSFULLY=0
+WITH_FAILURE=1
+
+(with "no database and input file"
+  it "fails with an error message" && {
+    WITH_SNAPSHOT="$snapshot/failure-missing-input-files" \
+    expect_run ${WITH_FAILURE} "$exe"
+  }
+)
+(with "a valid and existing hotel database"
+  hotel_db="$fixture/hotel-db.yml"
+  (with "no input file"
+    it "fails with an error message" && {
+      WITH_SNAPSHOT="$snapshot/failure-missing-input-files" \
+      expect_run ${WITH_FAILURE} "$exe" "$hotel_db"
+    }
+  )
+  (with "an input file that does not exit"
+    it "fails with an error message" && {
+      WITH_SNAPSHOT="$snapshot/failure-input-file-not-found" \
+      expect_run ${WITH_FAILURE} "$exe" "$hotel_db" some-file-that-does-not-exist
+    }
+  )
+  (with "the input from the challenge"
+    it "produces the expected output" && {
+      WITH_SNAPSHOT="$snapshot/success-input-file-produces-correct-output" \
+      expect_run ${SUCCESSFULLY} "$exe" "$hotel_db" "$fixture/input.txt"
+    }
+  )
+  (with "in the root directory"
+    (when "executing 'make answers'"
+      it "produces the correct output" && {
+        expect_run ${SUCCESSFULLY} make answers
+      }
+    )
+  )
+)

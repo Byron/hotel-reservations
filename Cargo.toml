@@ -1,0 +1,21 @@
+[package]
+name = "hotel-reservations"
+version = "1.0.0"
+authors = ["Sebastian Thiel <sthiel@thoughtworks.com>"]
+publish = false
+
+[dependencies]
+failure = "0.1.1"
+failure-tools = "4.0.2"
+serde_yaml = "0.7.4"
+serde_derive = "1.0.62"
+serde = "1.0.62"
+
+[[bin]]
+name="hotel"
+path="src/main.rs"
+
+[profile.release]
+panic = 'unwind'
+incremental = false
+overflow-checks = true
