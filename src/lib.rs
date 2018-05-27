@@ -42,7 +42,10 @@ fn parse_booking(input: &str, dates: &mut Vec<Date>) -> Result<CustomerKind, Err
         ),
     };
 
-    for date in input[9..].split(", ").map(|t| t.parse()) {
+    for date in input[CUSTOMER_TYPE_OFFSET..].split(", ").map(|t| {
+        t.parse::<Date>()
+            .with_context(|_err| format!("Could not parse date from '{}'", t))
+    }) {
         dates.push(date?);
     }
 
@@ -72,7 +75,7 @@ impl FromStr for Date {
             bail!("Cannot parse date from '{}' - invalid length.", s)
         }
 
-        Ok::<_, Error>(Date {
+        Ok(Date {
             _day: s[..DAY_LEN]
                 .parse::<u8>()
                 .with_context(|_e| "Could not parse day")?,
@@ -83,8 +86,7 @@ impl FromStr for Date {
             weekday: s[YEAR_END + 1..s.find(')').ok_or_else(|| {
                            err_msg("Could not find closing bracket in weekday part")
                        })?].parse()?,
-        }).with_context(|_err| format!("Could not parse date from '{}'", s))
-            .map_err(Into::into)
+        })
     }
 }
 
