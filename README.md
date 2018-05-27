@@ -22,3 +22,8 @@ Please be warned that initial compilation takes a while.
 * [x] support for benchmarking
 * [x] support for linting
 * [x] interactive developer environment in docker
+
+## Benchmark Results
+
+The Rust implementation comes in at 217 lines, with a binary sized at 780kb. It runs the benchmark
+in 74ms.

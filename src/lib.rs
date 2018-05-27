@@ -64,7 +64,6 @@ impl FromStr for Date {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Date, Error> {
-        //        16Mar2009(mon)
         const EXPECTED_LEN: usize = 12;
         if s.len() < EXPECTED_LEN {
             bail!("Cannot parse date from '{}' - invalid length.", s)

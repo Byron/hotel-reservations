@@ -32,11 +32,11 @@ lint:
 	cargo clippy
 
 profile: target/release/hotel
-	valgrind --callgrind-out-file=callgrind.profile --tool=callgrind  $< $(bench_fixture) >/dev/null
+	valgrind --callgrind-out-file=callgrind.profile --tool=callgrind  $< $(hotel_db) $(bench_fixture) >/dev/null
 	callgrind_annotate --auto=yes callgrind.profile
 
 benchmark: target/release/hotel
-	hyperfine '$< $(bench_fixture)'
+	hyperfine '$< $(hotel_db) $(bench_fixture)'
 
 journey-tests: target/debug/hotel
 	./tests/stateless-journey.sh $<
