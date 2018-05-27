@@ -23,7 +23,14 @@ Please be warned that initial compilation takes a while.
 * [x] support for linting
 * [x] interactive developer environment in docker
 
+## Notes
+
+* regex are explicitly not used for parsing, which would remove a few lines of code at the expense
+  of a huge dependency.
+* There are plenty of unused fields which are implemented only for completeness. Also I believe
+  they are optimized away to the point where the they are not actually parsed.
+
 ## Benchmark Results
 
-The Rust implementation comes in at 216 lines, with a binary sized at 780kb. It runs the benchmark
+The Rust implementation comes in at 211 lines, with a binary sized at 780kb (stripped). It runs the benchmark
 in 54ms.

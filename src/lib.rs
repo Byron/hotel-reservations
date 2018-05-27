@@ -5,7 +5,7 @@ extern crate serde_derive;
 extern crate serde;
 
 use failure::{err_msg, Error, ResultExt};
-use std::{io::{self, BufRead, BufReader, BufWriter, Write}, str::FromStr};
+use std::{io::{self, BufRead, BufReader, BufWriter, Write}, str::FromStr, u32};
 
 pub fn answers(db: &HotelDb, input: impl io::Read, output: impl io::Write) -> Result<(), Error> {
     let mut output = BufWriter::new(output);
@@ -15,18 +15,13 @@ pub fn answers(db: &HotelDb, input: impl io::Read, output: impl io::Write) -> Re
         let line = line.with_context(|_err| "Could not read line with bookings")?;
         dates.clear();
         let customer_type = parse_booking(&line, &mut dates)?;
-        let hotel = db.0
+        let cheapest_hotel = db.0
             .iter()
-            .map(|h| {
-                (
-                    h,
-                    (h.rate(customer_type, &dates), ::std::u32::MAX - h.rating),
-                )
-            })
+            .map(|h| (h, (h.rate(customer_type, &dates), u32::MAX - h.rating)))
             .min_by_key(|&(_, rate_and_rating)| rate_and_rating)
             .map(|(h, _)| h)
             .ok_or_else(|| format_err!("Cannot find rating without any dates: '{}'", line))?;
-        writeln!(output, "{}", hotel.name)?;
+        writeln!(output, "{}", cheapest_hotel.name)?;
     }
     Ok(())
 }
@@ -64,16 +59,18 @@ struct Date {
 impl FromStr for Date {
     type Err = Error;
 
+    /// Parses \d{2}\w{3}\d{4}(\w+)
     fn from_str(s: &str) -> Result<Date, Error> {
-        const EXPECTED_LEN: usize = 12;
-        if s.len() < EXPECTED_LEN {
-            bail!("Cannot parse date from '{}' - invalid length.", s)
-        }
         const DAY_LEN: usize = 2;
         const MONTH_LEN: usize = 3;
         const YEAR_LEN: usize = 4;
         const MONTH_END: usize = DAY_LEN + MONTH_LEN;
         const YEAR_END: usize = MONTH_END + YEAR_LEN;
+        const EXPECTED_LEN: usize = YEAR_END + 1 + 1 + 1;
+
+        if s.len() < EXPECTED_LEN {
+            bail!("Cannot parse date from '{}' - invalid length.", s)
+        }
 
         Ok::<_, Error>(Date {
             _day: s[..DAY_LEN]
