@@ -9,9 +9,12 @@ use std::{io::{self, BufRead, BufReader, BufWriter, Write}, str::FromStr};
 
 pub fn answers(db: &HotelDb, input: impl io::Read, output: impl io::Write) -> Result<(), Error> {
     let mut output = BufWriter::new(output);
+    let mut dates = Vec::with_capacity(10);
+
     for line in BufReader::new(input).lines() {
         let line = line.with_context(|_err| "Could not read line with bookings")?;
-        let (customer_type, dates) = parse_booking(&line)?;
+        dates.clear();
+        let customer_type = parse_booking(&line, &mut dates)?;
         let hotel = db.0
             .iter()
             .map(|h| {
@@ -28,7 +31,7 @@ pub fn answers(db: &HotelDb, input: impl io::Read, output: impl io::Write) -> Re
     Ok(())
 }
 
-fn parse_booking(input: &str) -> Result<(CustomerKind, Vec<Date>), Error> {
+fn parse_booking(input: &str, dates: &mut Vec<Date>) -> Result<CustomerKind, Error> {
     const CUSTOMER_TYPE_OFFSET: usize = 9;
     if input.len() < CUSTOMER_TYPE_OFFSET {
         bail!("Input '{}' does not even contain the customer type", input)
@@ -44,13 +47,11 @@ fn parse_booking(input: &str) -> Result<(CustomerKind, Vec<Date>), Error> {
         ),
     };
 
-    Ok((
-        customer_type,
-        input[9..]
-            .split(", ")
-            .map(|t| t.parse())
-            .collect::<Result<_, _>>()?,
-    ))
+    for date in input[9..].split(", ").map(|t| t.parse()) {
+        dates.push(date?);
+    }
+
+    Ok(customer_type)
 }
 
 struct Date {

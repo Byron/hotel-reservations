@@ -25,5 +25,5 @@ Please be warned that initial compilation takes a while.
 
 ## Benchmark Results
 
-The Rust implementation comes in at 217 lines, with a binary sized at 780kb. It runs the benchmark
-in 74ms.
+The Rust implementation comes in at 216 lines, with a binary sized at 780kb. It runs the benchmark
+in 54ms.
