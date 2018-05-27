@@ -1,3 +1,4 @@
+hotel_db = tests/fixtures/hotel-db.yml
 fixture = tests/fixtures/input.txt
 bench_fixture = tests/fixtures/big-input.txt
 docker_image = hotel_docker_developer_environment
@@ -41,7 +42,7 @@ journey-tests: target/debug/hotel
 	./tests/stateless-journey.sh $<
 
 answers: target/debug/hotel
-	$< $(fixture)
+	$< $(hotel_db) $(fixture)
 
 answers-in-docker:
 	docker run -v $$PWD:/volume -w /volume rust make answers
